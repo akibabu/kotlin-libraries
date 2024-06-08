@@ -25,6 +25,12 @@ class KtorApplication(
     private val preServerShutdownHook: (() -> Unit)? = null
 ) {
 
+    val json: Json = Json {
+        prettyPrint = true
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+    }
+
     val server: NettyApplicationEngine = embeddedServer(Netty, port) {
         install(StatusPages) {
             exception<Throwable> { call, cause ->
@@ -32,10 +38,7 @@ class KtorApplication(
             }
         }
         install(ContentNegotiation) {
-            json(Json {
-                prettyPrint = true
-                ignoreUnknownKeys = true
-            })
+            json(json)
         }
         install(Compression) {
             gzip {
