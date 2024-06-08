@@ -15,6 +15,8 @@ import io.ktor.server.plugins.compression.minimumSize
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respondText
+import io.ktor.server.routing.Routing
+import io.ktor.server.routing.routing
 import kotlinx.serialization.json.Json
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -22,7 +24,8 @@ import java.util.concurrent.TimeUnit
 
 class KtorApplication(
     private val port: Int,
-    private val preServerShutdownHook: (() -> Unit)? = null
+    private val routingConfigurer: (Routing) -> Unit,
+    private val preServerShutdownHook: (() -> Unit)? = null,
 ) {
 
     val json: Json = Json {
@@ -31,7 +34,7 @@ class KtorApplication(
         encodeDefaults = true
     }
 
-    val server: NettyApplicationEngine = embeddedServer(Netty, port) {
+    private val server: NettyApplicationEngine = embeddedServer(Netty, port) {
         install(StatusPages) {
             exception<Throwable> { call, cause ->
                 call.respondText(text = cause.stackTraceToString(), status = HttpStatusCode.InternalServerError)
@@ -47,6 +50,9 @@ class KtorApplication(
             deflate {
                 minimumSize(1024)
             }
+        }
+        routing {
+            routingConfigurer(this)
         }
     }.apply {
         addShutdownHook {
