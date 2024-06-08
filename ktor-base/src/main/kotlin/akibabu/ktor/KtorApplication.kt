@@ -62,7 +62,6 @@ class KtorApplication(
     }
 
     fun start(wait: Boolean = true) {
-        server.start()
         logger.info("Ktor server starting on port $port")
         server.start(wait)
     }
