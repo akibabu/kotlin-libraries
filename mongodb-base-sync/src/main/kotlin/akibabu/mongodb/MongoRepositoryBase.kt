@@ -5,13 +5,12 @@ import com.mongodb.client.model.Filters
 import com.mongodb.kotlin.client.MongoCollection
 import com.mongodb.kotlin.client.MongoDatabase
 import org.apache.logging.log4j.Logger
-import java.util.function.Consumer
 
 abstract class MongoRepositoryBase<T : Any>(
     clazz: Class<T>,
     private val collectionName: String,
     database: MongoDatabase,
-    collectionOnCreation: Consumer<MongoCollection<T>>? = null,
+    collectionOnCreation: ((MongoCollection<T>) -> Unit)? = null,
     protected val logger: Logger
 ) {
 
@@ -22,7 +21,7 @@ abstract class MongoRepositoryBase<T : Any>(
             logger.info("Creating collection $collectionName")
             database.createCollection(collectionName, CreateCollectionOptions())
             this.collection = database.getCollection(collectionName, clazz).apply {
-                collectionOnCreation?.accept(this)
+                collectionOnCreation?.invoke(this)
             }
         } else {
             logger.info("Using existing collection $collectionName")

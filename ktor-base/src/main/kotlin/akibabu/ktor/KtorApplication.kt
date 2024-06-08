@@ -24,15 +24,14 @@ import java.util.concurrent.TimeUnit
 
 class KtorApplication(
     private val port: Int,
-    private val routingConfigurer: (Routing) -> Unit,
+    private val routingConfigurer: ((Routing) -> Unit)? = null,
     private val preServerShutdownHook: (() -> Unit)? = null,
-) {
-
     val json: Json = Json {
         prettyPrint = true
         ignoreUnknownKeys = true
         encodeDefaults = true
     }
+) {
 
     private val server: NettyApplicationEngine = embeddedServer(Netty, port) {
         install(StatusPages) {
@@ -52,7 +51,7 @@ class KtorApplication(
             }
         }
         routing {
-            routingConfigurer(this)
+            routingConfigurer?.invoke(this)
         }
     }.apply {
         addShutdownHook {
