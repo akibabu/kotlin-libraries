@@ -1,3 +1,4 @@
 rootProject.name = "kotlin-libraries"
-include("mongodb-base-sync")
 include("ktor-base")
+include("mongodb-base-sync")
+include("mongodb-base-async")

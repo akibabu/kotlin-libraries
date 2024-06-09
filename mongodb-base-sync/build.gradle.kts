@@ -6,6 +6,9 @@ plugins {
 
 dependencies {
     api("org.mongodb:mongodb-driver-kotlin-sync:5.1.0")
+    api("org.mongodb:bson-kotlinx:5.1.0") {
+        because("Makes @SerialName have effect in DBOs")
+    }
     compileOnly("org.apache.logging.log4j:log4j-api:2.23.1")
 }
 

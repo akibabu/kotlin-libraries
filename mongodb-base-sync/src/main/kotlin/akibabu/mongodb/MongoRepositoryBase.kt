@@ -2,11 +2,12 @@ package akibabu.mongodb
 
 import com.mongodb.client.model.CreateCollectionOptions
 import com.mongodb.client.model.Filters
+import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.kotlin.client.MongoCollection
 import com.mongodb.kotlin.client.MongoDatabase
 import org.apache.logging.log4j.Logger
 
-abstract class MongoRepositoryBase<T : Any>(
+abstract class MongoRepositoryBase<T : MongoDbo>(
     clazz: Class<T>,
     private val collectionName: String,
     database: MongoDatabase,
@@ -39,7 +40,15 @@ abstract class MongoRepositoryBase<T : Any>(
         collection.insertOne(value)
     }
 
+    fun upsert(value: T) {
+        collection.replaceOne(Filters.eq("_id", value.getId()), value, upsertOptions)
+    }
+
     fun findAll(): List<T> {
         return collection.find(Filters.empty()).toList()
+    }
+
+    companion object {
+        private val upsertOptions: ReplaceOptions = ReplaceOptions().upsert(true)
     }
 }
